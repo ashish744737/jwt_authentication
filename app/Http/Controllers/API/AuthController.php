@@ -17,55 +17,75 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'login' => 'required|string',
-            'password' => 'required|string',
-        ]);
-
-        $login = $request->input('login');
-        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
-        $request->merge([$field => $login]);
-        $credentials = $request->only($field, 'password');
-
-        // $credentials = $request->only('email', 'password');
-        $token = Auth::attempt($credentials);
-        
-        if (!$token) {
+        try {
+            $request->validate([
+                'login' => 'required|string',
+                'password' => 'required|string',
+            ]);
+    
+            $login = $request->input('login');
+            $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
+            $request->merge([$field => $login]);
+            $credentials = $request->only($field, 'password');
+    
+            $token = Auth::attempt($credentials);
+            
+            if (!$token) {
+                return response()->json([
+                    'message' => 'Unauthorized Access',
+                    'status' => 401
+                ]);
+            }
+    
+            $user = Auth::user();
             return response()->json([
-                'message' => 'Unauthorized Access',
-            ], 401);
+                'user' => $user,
+                'authorization' => [
+                    'token' => $token,
+                    'type' => 'bearer',
+                ],
+                'status' => 200
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+                'status' => 500
+            ]);
         }
-
-        $user = Auth::user();
-        return response()->json([
-            'user' => $user,
-            'authorization' => [
-                'token' => $token,
-                'type' => 'bearer',
-            ]
-        ]);
+        
     }
 
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'user_name' => 'required|string|regex:/\w*$/|max:255|unique:users,user_name',
-            'password' => 'required|string|min:6',
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'user_name' => $request->user_name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        return response()->json([
-            'message' => 'Your registration has been successful',
-            'user' => $user
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'user_name' => 'required|string|regex:/\w*$/|max:255|unique:users,user_name',
+                'password' => 'required|string|min:6',
+            ]);
+    
+            $user = User::create([
+                'name' => $request->name,
+                'user_name' => $request->user_name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+    
+            return response()->json([
+                'message' => 'Your registration has been successful',
+                'user' => $user,
+                'status' => 200
+            ]);
+          
+        } catch (\Throwable $th) {
+            
+            return response()->json([
+                'message' => $th->getMessage(),
+                'status' => 500
+            ]);
+        }
+       
     }
 
     public function logout()
@@ -73,6 +93,7 @@ class AuthController extends Controller
         Auth::logout();
         return response()->json([
             'message' => 'Successfully logged out',
+            'status' => 200
         ]);
     }
 
@@ -83,11 +104,13 @@ class AuthController extends Controller
             'authorisation' => [
                 'token' => Auth::refresh(),
                 'type' => 'bearer',
-            ]
+                
+            ],
+            'status' => 200
         ]);
     }
 
     public function userProfile(){
-        return response()->json(auth()->user());
+        return response()->json(['user' => auth()->user(),'status' => 200]);
     }
 }
