@@ -14,16 +14,17 @@ DB_DATABASE=database_name<br>
 DB_USERNAME=root<br>
 DB_PASSWORD=<br>
 
-## for postgreSql database
-## DB_CONNECTION=pgsql
-## DB_HOST=127.0.0.1
-## DB_PORT=5432
-## DB_DATABASE=database_name
-## DB_USERNAME=user_name
-## DB_PASSWORD=your_choosen_password
+------ for mysql database ---------
+<br>
+DB_CONNECTION=pgsql<br>
+DB_HOST=127.0.0.1<br>
+DB_PORT=5432<br>
+DB_DATABASE=database_name<br>
+DB_USERNAME=user_name<br>
+DB_PASSWORD=your_choosen_password<br>
 
 you can use any of these
-
+<hr>
 4. use "php artisan migrate" command to migrate database
 5. use command to regenerate jwt secret in case its not in .env file : "php artisan jwt:secret"
 6. to run the program use the command : "php artisan serve"
