@@ -5,7 +5,8 @@ Steps :
 2. rename .env.example to .env 
 3. For detabase setup please follow below setup in .env
 
------- for mysql database
+------ for mysql database ---------
+<br>
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
